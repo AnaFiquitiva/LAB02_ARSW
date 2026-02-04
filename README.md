@@ -22,9 +22,9 @@ mvn -q -DskipTests exec:java -Dsnakes=4
 
 - `-Dsnakes=N` → inicia el juego con **N** serpientes (por defecto 2).
 - **Controles**:
-  - **Flechas**: serpiente **0** (Jugador 1).
-  - **WASD**: serpiente **1** (si existe).
-  - **Espacio** o botón **Action**: Pausar / Reanudar.
+    - **Flechas**: serpiente **0** (Jugador 1).
+    - **WASD**: serpiente **1** (si existe).
+    - **Espacio** o botón **Action**: Pausar / Reanudar.
 
 ---
 
@@ -58,9 +58,9 @@ co.eci.snake
 
 1. Toma el programa [**PrimeFinder**](https://github.com/ARSW-ECI/wait-notify-excercise).
 2. Modifícalo para que **cada _t_ milisegundos**:
-   - Se **pausen** todos los hilos trabajadores.
-   - Se **muestre** cuántos números primos se han encontrado.
-   - El programa **espere ENTER** para **reanudar**.
+    - Se **pausen** todos los hilos trabajadores.
+    - Se **muestre** cuántos números primos se han encontrado.
+    - El programa **espere ENTER** para **reanudar**.
 3. La sincronización debe usar **`synchronized`**, **`wait()`**, **`notify()` / `notifyAll()`** sobre el **mismo monitor** (sin _busy-waiting_).
 4. Entrega en el reporte de laboratorio **las observaciones y/o comentarios** explicando tu diseño de sincronización (qué lock, qué condición, cómo evitas _lost wakeups_).
 
@@ -74,9 +74,9 @@ co.eci.snake
 
 - Explica **cómo** el código usa hilos para dar autonomía a cada serpiente.
 - **Identifica** y documenta en **`el reporte de laboratorio`**:
-  - Posibles **condiciones de carrera**.
-  - **Colecciones** o estructuras **no seguras** en contexto concurrente.
-  - Ocurrencias de **espera activa** (busy-wait) o de sincronización innecesaria.
+    - Posibles **condiciones de carrera**.
+    - **Colecciones** o estructuras **no seguras** en contexto concurrente.
+    - Ocurrencias de **espera activa** (busy-wait) o de sincronización innecesaria.
 
 ### 2) Correcciones mínimas y regiones críticas
 
@@ -88,8 +88,8 @@ co.eci.snake
 
 - Implementa la **UI** con **Iniciar / Pausar / Reanudar** (ya existe el botón _Action_ y el reloj `GameClock`).
 - Al **Pausar**, muestra de forma **consistente** (sin _tearing_):
-  - La **serpiente viva más larga**.
-  - La **peor serpiente** (la que **primero murió**).
+    - La **serpiente viva más larga**.
+    - La **peor serpiente** (la que **primero murió**).
 - Considera que la suspensión **no es instantánea**; coordina para que el estado mostrado no quede “a medias”.
 
 ### 4) Robustez bajo carga
@@ -106,10 +106,10 @@ co.eci.snake
 
 1. **Código fuente** funcionando en **Java 21**.
 2. Todo de manera clara en **`**el reporte de laboratorio**`** con:
-   - Data races encontradas y su solución.
-   - Colecciones mal usadas y cómo se protegieron (o sustituyeron).
-   - Esperas activas eliminadas y mecanismo utilizado.
-   - Regiones críticas definidas y justificación de su **alcance mínimo**.
+    - Data races encontradas y su solución.
+    - Colecciones mal usadas y cómo se protegieron (o sustituyeron).
+    - Esperas activas eliminadas y mecanismo utilizado.
+    - Regiones críticas definidas y justificación de su **alcance mínimo**.
 3. UI con **Iniciar / Pausar / Reanudar** y estadísticas solicitadas al pausar.
 
 ---
