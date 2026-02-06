@@ -80,8 +80,12 @@ Se implementó un esquema de coordinación basado en un monitor único para gest
 
 #### 1. Análisis de concurrencia
 
-- **Hilos y Autonomía**: El código utiliza Virtual Threads (Java 21) para dar autonomía a cada serpiente. Cada instancia de `SnakeRunner` se ejecuta en su propio hilo ligero.
+- **Hilos y Autonomía**: El código utiliza Virtual Threads (Java 21) para dar autonomía a cada serpiente. Cada instancia de `SnakeRunner` se ejecuta en su propio hilo ligero. Ésta implementa la interfaz runnable, lo que le permite a una tarea ser ejecutada por un thread. Dado que cada serpiente se crea en un nuevo thread utilizando `newVirtualThreadPerTaskExecutor` y cada una tiene su propio contexto del tablero, su posición y la dirección en que se dirigen es posible la autonomía de cada una.
 - **Condiciones de Carrera**: Se identificaron riesgos en la actualización del tablero cuando múltiples serpientes intentan consumir el mismo ratón o generar nuevos obstáculos al mismo tiempo.
+  Una forma de evitar este tipo de errores es utilizando colecciones o estructuras thread-safe o seguras para hilos. Algunas de las colecciones y estructuras que no son thread-safe pero se usan en el codigo son:
+  - ArrayDeque -> Usado en Snake
+  - HashSet, HashMap -> Usado en Board (junto con un synchronized)
+
 - **Inconsistencia Visual (Tearing)**: La interfaz gráfica leía la estructura del cuerpo de la serpiente mientras los hilos de lógica la modificaban, resultando en representaciones visuales incompletas o dañadas.
 
 #### 2. Colecciones No Seguras y Sustitución
@@ -90,6 +94,9 @@ Las estructuras de datos originales no estaban diseñadas para acceso concurrent
 
 - **Sustitución en Board**: Se identificó que `HashSet` y `HashMap` no son seguros. Se reemplazaron por `ConcurrentHashMap` (usando un mapa como conjunto) para permitir que múltiples hilos de serpientes verifiquen y modifiquen obstáculos o ratones de forma segura.
 - **Sustitución en Snake**: La `ArrayDeque` que almacena el cuerpo se protegió mediante bloques sincronizados para asegurar que el método `snapshot()` entregue una copia íntegra a la UI mientras el hilo de la serpiente añade nuevas posiciones.
+- **Eliminación de syncronized innecesario**: Se eliminó el syncronized de teleport() ya que, como los datos no cambian, se puede considerar thread-safe
+- **Sustitución de ArrayDeque**: Se reemplazó el uso de ArrayDeque que puede llegar a cruzar o sobreescribir datos si se hace por dos hilos en un mismo espacio de memoria y usar un ConcurrentLinkedDeque en su lugar.
+- **Medida preventiva**: Como medida preventiva se cambia la ArrayList de Snakes por una CopyOnWriteArrayList que permite iterar sobre las Snakes de forma mas segura
 
 #### 3. Regiones Críticas Detalladas
 
