@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class Board {
@@ -17,8 +18,9 @@ public final class Board {
   private final Set<Position> turbo = java.util.concurrent.ConcurrentHashMap.newKeySet();
   private final Map<Position, Position> teleports = new HashMap<>(); // Read-only after init
 
+  // Agregamos un nuevo resultado para representar la muerte por colisión
   public enum MoveResult {
-    MOVED, ATE_MOUSE, HIT_OBSTACLE, ATE_TURBO, TELEPORTED
+    MOVED, ATE_MOUSE, HIT_OBSTACLE, ATE_TURBO, TELEPORTED, SNAKE_DIED
   }
 
   public Board(int width, int height) {
@@ -61,15 +63,30 @@ public final class Board {
     return teleports;
   }
 
-  public MoveResult step(Snake snake) {
+  /**
+   * Ejecuta un paso de movimiento.
+   * Se añade el parámetro allSnakes para verificar colisiones entre ellas.
+   */
+  public synchronized MoveResult step(Snake snake, List<Snake> allSnakes) {
     Objects.requireNonNull(snake, "snake");
     var head = snake.head();
     var dir = snake.direction();
+
+    // Calcular siguiente posición con wrap-around
     Position next = new Position(head.x() + dir.dx, head.y() + dir.dy).wrap(width, height);
 
+    // 1. REBOTE: Si choca con un obstáculo naranja, solo retorna HIT_OBSTACLE
     if (obstacles.contains(next))
       return MoveResult.HIT_OBSTACLE;
 
+    // 2. MUERTE: Si choca con cualquier serpiente (incluida ella misma)
+    for (Snake s : allSnakes) {
+      if (s.snapshot().contains(next)) {
+        return MoveResult.SNAKE_DIED;
+      }
+    }
+
+    // Lógica de Teleport
     boolean teleported = false;
     if (teleports.containsKey(next)) {
       next = teleports.get(next);

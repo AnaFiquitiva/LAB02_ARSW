@@ -10,6 +10,7 @@ public final class Snake {
   private final Deque<Position> body = new ConcurrentLinkedDeque<>();
   private volatile Direction direction;
   private int maxLength = 5;
+  private boolean dead = false;
 
   private Snake(Position start, Direction dir) {
     body.addFirst(start);
@@ -24,7 +25,8 @@ public final class Snake {
     return direction;
   }
 
-  public void turn(Direction dir) {
+  // Sincronizado para evitar cambios de dirección inconsistentes
+  public synchronized void turn(Direction dir) {
     if ((direction == Direction.UP && dir == Direction.DOWN) ||
         (direction == Direction.DOWN && dir == Direction.UP) ||
         (direction == Direction.LEFT && dir == Direction.RIGHT) ||
@@ -38,11 +40,18 @@ public final class Snake {
     return body.peekFirst();
   }
 
-  public Deque<Position> snapshot() {
+  public synchronized Position head() {
+    return body.peekFirst();
+  }
+
+  // REQUISITO: Retorna una copia profunda para que la UI no vea estados
+  // intermedios
+  public synchronized Deque<Position> snapshot() {
     return new ArrayDeque<>(body);
   }
 
-  public void advance(Position newHead, boolean grow) {
+  // REQUISITO: Región crítica para la actualización del cuerpo
+  public synchronized void advance(Position newHead, boolean grow) {
     body.addFirst(newHead);
     if (grow)
       maxLength++;
@@ -50,7 +59,26 @@ public final class Snake {
       body.removeLast();
   }
 
-  public int getLength() {
+  public synchronized void die() {
+    this.dead = true;
+  }
+
+  public synchronized boolean isDead() {
+    return dead;
+  }
+
+  public synchronized int getLength() {
     return body.size();
   }
+
 }
+    
+  
+
+  
+    
+  
+
+  
+    
+  
