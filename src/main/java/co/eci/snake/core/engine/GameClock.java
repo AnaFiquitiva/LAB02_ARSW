@@ -1,79 +1,61 @@
 package co.eci.snake.core.engine;
 
-import co.eci.snake.core.sync.PauseController;
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import javax.swing.Timer;
+import java.awt.event.ActionListener;
 
 /**
- * Reloj del juego que controla la frecuencia de actualización visual.
- * Integrado con PauseController.
+ * El GameClock actúa como el motor de refresco de la interfaz.
+ * Utiliza un Timer de Swing que es seguro para hilos de UI.
  */
 public final class GameClock {
-  private final ScheduledExecutorService scheduler;
-  private final Runnable tickCallback;
-  private final long periodMs;
-  private final PauseController pauseController;
 
-  /**
-   * Crea un reloj del juego.
-   *
-   * @param fps Fotogramas por segundo deseados
-   * @param tickCallback Acción a ejecutar en cada tick (típicamente repaint)
-   * @param pauseController Controlador de pausa
-   */
-  public GameClock(int fps, Runnable tickCallback, PauseController pauseController) {
-    this.scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-      Thread t = new Thread(r, "GameClock");
-      t.setDaemon(true);
-      return t;
-    });
-    this.tickCallback = tickCallback;
-    this.periodMs = 1000 / fps;
-    this.pauseController = pauseController;
-  }
+    private final Timer timer;
+    private final int fps;
 
-  /**
-   * Inicia el reloj.
-   */
-  public void start() {
-    pauseController.start();
-    scheduler.scheduleAtFixedRate(
-            tickCallback,
-            0,
-            periodMs,
-            TimeUnit.MILLISECONDS
-    );
-  }
-
-  /**
-   * Pausa el reloj (la animación se detiene pero el scheduler sigue corriendo).
-   */
-  public void pause() {
-    pauseController.pause();
-  }
-
-  /**
-   * Reanuda el reloj.
-   */
-  public void resume() {
-    pauseController.resume();
-  }
-
-  /**
-   * Detiene el reloj completamente.
-   */
-  public void stop() {
-    pauseController.stop();
-    scheduler.shutdown();
-    try {
-      if (!scheduler.awaitTermination(1, TimeUnit.SECONDS)) {
-        scheduler.shutdownNow();
-      }
-    } catch (InterruptedException e) {
-      scheduler.shutdownNow();
-      Thread.currentThread().interrupt();
+    /**
+     * @param fps Cuadros por segundo (ej. 60)
+     * @param onTick Acción a ejecutar en cada refresco (normalmente repaint())
+     */
+    public GameClock(int fps, Runnable onTick) {
+        this.fps = fps;
+        // El Timer ejecuta la acción cada (1000/fps) milisegundos
+        this.timer = new Timer(1000 / fps, e -> onTick.run());
     }
-  }
+
+    /**
+     * Inicia el reloj del juego.
+     */
+    public void start() {
+        if (!timer.isRunning()) {
+            timer.start();
+        }
+    }
+
+    /**
+     * Pausa el refresco de la pantalla.
+     */
+    public void pause() {
+        timer.stop();
+    }
+
+    /**
+     * Reanuda el refresco de la pantalla.
+     */
+    public void resume() {
+        timer.start();
+    }
+
+    /**
+     * Verifica si el reloj está activo.
+     */
+    public boolean isRunning() {
+        return timer.isRunning();
+    }
+
+    /**
+     * Permite ajustar la velocidad del juego dinámicamente si fuera necesario.
+     */
+    public void setSpeed(int newFps) {
+        timer.setDelay(1000 / newFps);
+    }
 }
