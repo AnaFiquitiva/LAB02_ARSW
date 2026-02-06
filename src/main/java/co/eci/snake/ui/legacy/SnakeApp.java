@@ -19,6 +19,7 @@ public final class SnakeApp extends JFrame {
   private final Board board;
   private final GamePanel gamePanel;
   private final JButton actionButton;
+  private final PauseController pauseController;
   private final GameClock clock;
   private final java.util.List<Snake> snakes = new java.util.ArrayList<>();
   private boolean isFirstStart = true;
@@ -51,7 +52,8 @@ public final class SnakeApp extends JFrame {
     setLocationRelativeTo(null);
 
     // Reloj de refresco visual
-    this.clock = new GameClock(60, () -> SwingUtilities.invokeLater(gamePanel::repaint));
+    this.pauseController = new PauseController();
+    this.clock = new GameClock(60, () -> SwingUtilities.invokeLater(gamePanel::repaint), pauseController);
 
     // Uso de Virtual Threads para autonomía de cada serpiente
     var exec = Executors.newVirtualThreadPerTaskExecutor();

@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Gestiona la lógica de movimiento y autonomía de cada serpiente en un hilo independiente.
- * Implementa el control de pausa mediante wait/notify y el registro de colisiones.
+ * Gestiona la lógica de movimiento y autonomía de cada serpiente en un hilo
+ * independiente.
+ * Implementa el control de pausa mediante wait/notify y el registro de
+ * colisiones.
  */
 public final class SnakeRunner implements Runnable {
   private final Snake snake;
@@ -34,7 +36,7 @@ public final class SnakeRunner implements Runnable {
   public void run() {
     try {
       while (!Thread.currentThread().isInterrupted()) {
-        
+
         // PARTE I y II: Sincronización mediante wait() (Evita el Busy-Waiting)
         // El hilo se bloquea aquí si el juego está pausado, liberando la CPU.
         synchronized (gameMonitor) {
@@ -45,7 +47,8 @@ public final class SnakeRunner implements Runnable {
 
         maybeTurn();
 
-        // Ejecutar el paso en el tablero verificando colisiones con el resto de serpientes
+        // Ejecutar el paso en el tablero verificando colisiones con el resto de
+        // serpientes
         var res = board.step(snake, snakes);
 
         if (res == Board.MoveResult.SNAKE_DIED) {
@@ -57,30 +60,22 @@ public final class SnakeRunner implements Runnable {
             }
           }
           // El hilo termina su ejecución al morir la serpiente
-          break; 
-          
+          break;
+
         } else if (res == Board.MoveResult.HIT_OBSTACLE) {
           // Rebote: Si choca con un cuadro naranja, gira aleatoriamente
           randomTurn();
-          
+
         } else if (res == Board.MoveResult.ATE_TURBO) {
           turboTicks = 100;
         }
 
         // Gestión de velocidad (normal vs turbo)
         int sleep = (turboTicks > 0) ? turboSleepMs : baseSleepMs;
-<<<<<<< HEAD
         if (turboTicks > 0)
           turboTicks--;
 
-        synchronized (monitor) {
-          monitor.wait(sleep);
-        }
-=======
-        if (turboTicks > 0) turboTicks--;
-        
         Thread.sleep(sleep);
->>>>>>> 28bc7df36338b145cb637e9f9413e164289b51cb
       }
     } catch (InterruptedException ie) {
       // Manejo de interrupción para cierre seguro del hilo
@@ -93,14 +88,9 @@ public final class SnakeRunner implements Runnable {
    */
   private void maybeTurn() {
     double p = (turboTicks > 0) ? 0.05 : 0.10;
-<<<<<<< HEAD
-    if (ThreadLocalRandom.current().nextDouble() < p)
-      randomTurn();
-=======
     if (ThreadLocalRandom.current().nextDouble() < p) {
       randomTurn();
     }
->>>>>>> 28bc7df36338b145cb637e9f9413e164289b51cb
   }
 
   /**

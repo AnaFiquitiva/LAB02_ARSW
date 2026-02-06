@@ -36,10 +36,6 @@ public final class Snake {
     this.direction = dir;
   }
 
-  public Position head() {
-    return body.peekFirst();
-  }
-
   public synchronized Position head() {
     return body.peekFirst();
   }
@@ -72,13 +68,3 @@ public final class Snake {
   }
 
 }
-    
-  
-
-  
-    
-  
-
-  
-    
-  
