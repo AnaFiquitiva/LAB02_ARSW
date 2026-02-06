@@ -6,12 +6,14 @@ import co.eci.snake.core.Direction;
 import co.eci.snake.core.Position;
 import co.eci.snake.core.Snake;
 import co.eci.snake.core.engine.GameClock;
+import co.eci.snake.core.sync.PauseController;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 
 public final class SnakeApp extends JFrame {
@@ -19,8 +21,9 @@ public final class SnakeApp extends JFrame {
   private final Board board;
   private final GamePanel gamePanel;
   private final JButton actionButton;
+  private final PauseController pauseController;
   private final GameClock clock;
-  private final java.util.List<Snake> snakes = new java.util.ArrayList<>();
+  private final java.util.List<Snake> snakes = new CopyOnWriteArrayList<>();
 
   public SnakeApp() {
     super("The Snake Race");
@@ -45,7 +48,8 @@ public final class SnakeApp extends JFrame {
     pack();
     setLocationRelativeTo(null);
 
-    this.clock = new GameClock(60, () -> SwingUtilities.invokeLater(gamePanel::repaint));
+    this.pauseController = new PauseController();
+    this.clock = new GameClock(60, () -> SwingUtilities.invokeLater(gamePanel::repaint), pauseController);
 
     var exec = Executors.newVirtualThreadPerTaskExecutor();
     snakes.forEach(s -> exec.submit(new SnakeRunner(s, board)));
