@@ -21,7 +21,7 @@ public final class SnakeApp extends JFrame {
   private final JButton actionButton;
   private final PauseController pauseController;
   private final GameClock clock;
-  private final java.util.List<Snake> snakes = new java.util.ArrayList<>();
+  private final java.util.List<Snake> snakes = new java.util.concurrent.CopyOnWriteArrayList<>();
   private boolean isFirstStart = true;
 
   public SnakeApp() {

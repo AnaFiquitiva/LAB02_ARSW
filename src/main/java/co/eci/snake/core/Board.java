@@ -67,7 +67,7 @@ public final class Board {
    * Ejecuta un paso de movimiento.
    * Se añade el parámetro allSnakes para verificar colisiones entre ellas.
    */
-  public synchronized MoveResult step(Snake snake, List<Snake> allSnakes) {
+  public MoveResult step(Snake snake, List<Snake> allSnakes) {
     Objects.requireNonNull(snake, "snake");
     var head = snake.head();
     var dir = snake.direction();
